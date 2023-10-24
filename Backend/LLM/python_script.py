@@ -4,7 +4,6 @@ import tensorflow_hub as hub
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-from sklearn.decomposition import PCA
 
 model_url = "https://tfhub.dev/google/universal-sentence-encoder/4"
 model = hub.load(model_url)
@@ -13,11 +12,20 @@ print('Model Loaded')
 def embed(texts):
     return model(texts)
 
-df = pd.read_csv("Top_10000_Movies.csv", engine="python")
+df = pd.read_csv("/home/pc/Desktop/Begining/webdev/HackOn/Final/Backend/LLM/updated_dataset.csv", engine="python")
 df = df[["id", "overview", "popularity", "original_title", "original_language"]]  # Include "original_language" in the data
 df = df.dropna()
 df = df.reset_index()
 df = df[:5500]
+
+# Convert 'popularity' column to numeric
+df['popularity'] = pd.to_numeric(df['popularity'], errors='coerce')
+
+# Check for any rows with non-numeric values in the 'popularity' column
+non_numeric_rows = df[df['popularity'].isna()]
+if not non_numeric_rows.empty:
+    print("Warning: Some rows in the 'popularity' column contain non-numeric values and have been set to NaN.")
+    print(non_numeric_rows)
 
 titles = list(df['overview'])
 embeddings = embed(titles)
