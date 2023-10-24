@@ -1,11 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
+const cors = require('cors'); // Import the cors middleware
+
 
 const app = express();
+
+// Enable CORS for all routes
+app.use(cors());
+
 app.use(bodyParser.json());
-
-
 
 app.post('/recommendMovies', (req, res) => {
   console.log("Api called");
@@ -26,15 +30,18 @@ app.post('/recommendMovies', (req, res) => {
       return;
     }
 
-    // Assuming the Python script prints the recommendations to stdout
-    const recommendations = stdout.trim().split('\n');
+    // Assuming the Python script prints the poster URLs to stdout
+    const posterUrls = stdout.trim().split('\n');
 
-    // Send the recommendations back as a JSON response
-    res.json({ recommendations });
+    // Remove the top 6 null values
+    const filteredPosterUrls = posterUrls.slice(6);
+
+    // Send the filtered poster URLs back as a JSON response
+    res.json({ recommendations: filteredPosterUrls });
   });
 });
 
-const port = 3000;
+const port = 8000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

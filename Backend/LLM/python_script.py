@@ -13,10 +13,10 @@ def embed(texts):
     return model(texts)
 
 df = pd.read_csv("/home/pc/Desktop/Begining/webdev/HackOn/Final/Backend/LLM/updated_dataset.csv", engine="python")
-df = df[["id", "overview", "popularity", "original_title", "original_language"]]  # Include "original_language" in the data
+df = df[["id", "overview", "popularity", "original_title", "original_language", "poster_url"]]  # Include "original_language" and "poster_url" in the data
 df = df.dropna()
 df = df.reset_index()
-df = df[:5500]
+df = df[:100]
 
 # Convert 'popularity' column to numeric
 df['popularity'] = pd.to_numeric(df['popularity'], errors='coerce')
@@ -59,13 +59,16 @@ def recommend(movie1_id, movie2_id, selected_languages):
     # Combine popularity-based recommendations with embeddings-based recommendations
     combined_recommendations = list(set(popularity_recommendations1 + popularity_recommendations2 + df['id'].iloc[neighbors1].tolist() + df['id'].iloc[neighbors2].tolist()))
     
-    return combined_recommendations  # Return a list of recommended movie IDs
+    # Get the poster_url for each recommended movie ID
+    poster_urls = df[df['id'].isin(combined_recommendations)]['poster_url'].tolist()
+    
+    return poster_urls  # Return a list of recommended movie poster URLs
 
 movie1_id = int(sys.argv[1])
 movie2_id = int(sys.argv[2])
 selected_languages = sys.argv[3:]  # Accept the list of selected languages
 combined_recommendations = recommend(movie1_id, movie2_id, selected_languages)
 
-# Print recommendations to be captured by Node.js
-for recommendation in combined_recommendations:
-    print(recommendation)  # Print the recommended movie IDs
+# Print poster URLs for the recommended movies
+for poster_url in combined_recommendations:
+    print(poster_url)  # Print the recommended movie poster URLs
