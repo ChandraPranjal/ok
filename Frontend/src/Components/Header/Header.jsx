@@ -1,25 +1,52 @@
-import React from 'react'
-import logo from "../../logo.png"
-import { Link } from "react-router-dom"
-import { ImSearch } from "react-icons/im"
+import React, { useState, useEffect } from 'react';
+import logo from "../../logo.png";
+import { Link } from "react-router-dom";
+import { ImSearch } from "react-icons/im";
 
 const Header = () => {
-    return (
-        <nav className="header">
+  // Initialize the toggle state from local storage
+  const [isFamilyFriendly, setIsFamilyFriendly] = useState(
+    localStorage.getItem('familyFriendly') === 'true'
+  );
 
-            <img src={logo} alt="logo" />
+  // Event handler to toggle the state and update local storage
+  const toggleFamilyFriendly = () => {
+    const newValue = !isFamilyFriendly;
+    setIsFamilyFriendly(newValue);
+    // Store the new value in local storage
+    localStorage.setItem('familyFriendly', newValue.toString());
+  };
 
-            <div>
-                <Link to="/tvshows" >TV Shows</Link>
-                <Link to="/movies" >Movies</Link>
-                <Link to="/recent" >Recently Added</Link>
-                <Link to="/mylist" >My List</Link>
-            </div>
+  // Effect to sync the state with local storage on component mount
+  useEffect(() => {
+    const storedValue = localStorage.getItem('familyFriendly');
+    if (storedValue !== null) {
+      setIsFamilyFriendly(storedValue === 'true');
+    }
+  }, []);
 
-            <ImSearch />
+  return (
+    <nav className="header">
+      <img src={logo} alt="logo" />
+      <div>
+        <Link to="/tvshows">TV Shows</Link>
+        <Link to="/movies">Movies</Link>
+        <Link to="/recent">Recently Added</Link>
+        <Link to="/mylist">My List</Link>
+      </div>
+      <ImSearch />
 
-        </nav>
-    )
+      {/* Family-Friendly Toggle Button */}
+      <label>
+        <input
+          type="checkbox"
+          checked={isFamilyFriendly}
+          onChange={toggleFamilyFriendly}
+        />
+        Family Friendly
+      </label>
+    </nav>
+  );
 }
 
-export default Header
+export default Header;

@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
+
 import "./Home.scss";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -36,6 +39,8 @@ const Home = () => {
   const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [recommendedMovies, setRecommendedMovies] = useState([]); // Add state for recommended movies
   const [genre, setGenre] = useState([]);
+  // Define a state variable to track liked movies
+  const [likedMovies, setLikedMovies] = useState([]);
 
   useEffect(() => {
     const fetchUpcoming = async () => {
@@ -80,14 +85,26 @@ const Home = () => {
 
     async function fetchRecommended() {
       try {
-        // Define the request data
+        // Check local storage for liked movies
+        const storedLikedMovies = JSON.parse(localStorage.getItem('likedMovies'));
+    
+        // Check local storage for familyFriendly
+        const familyFriendly = JSON.parse(localStorage.getItem('familyFriendly'));
+    
+        // Define the request data with default values
         const requestData = {
           movie1: 354912,
           movie2: 497698,
           languages: ["ja", "en"],
-          adult: 1
+          adult: familyFriendly ? 1 : 0, // Set "adult" based on the familyFriendly value
         };
-
+    
+        // Use liked movies from local storage if available
+        if (storedLikedMovies && storedLikedMovies.length >= 2) {
+          requestData.movie1 = storedLikedMovies[0];
+          requestData.movie2 = storedLikedMovies[1];
+        }
+    
         // Make a POST request to the recommended movies endpoint
         const response = await axios.post("http://localhost:8000/recommendMovies", requestData);
         console.log(response.data);
@@ -97,12 +114,29 @@ const Home = () => {
         console.error("Error fetching recommended movies:", error);
       }
     }
+    
+    
 
     // Call the fetchRecommended function when the component is mounted
     fetchRecommended();
 
   }, []);
 
+  // Define a function to handle liking a movie
+  const handleLikeMovie = (movieId) => {
+    alert("Added to Liked Movies");
+    // Check if the movie is already liked
+    if (!likedMovies.includes(movieId)) {
+      // Add the movie ID to the liked movies list
+      const updatedLikedMovies = [...likedMovies, movieId];
+      setLikedMovies(updatedLikedMovies);
+
+      // Save the liked movies list in local storage
+      localStorage.setItem('likedMovies', JSON.stringify(updatedLikedMovies));
+    }
+  };
+
+  
   return (
     <section className="home">
       <div
@@ -128,8 +162,16 @@ const Home = () => {
       <div className="row">
         <h2>Recommended Movies</h2>
         <div className="card-container">
-          {recommendedMovies.map((item, index) => (
-            <Card key={index} img={item.poster_url} />
+          {recommendedMovies.map((movie, index) => (
+            <div key={index} className="card-container">
+              <img
+                className={`card ${likedMovies.includes(movie.id) ? 'liked' : ''}`}
+                src={movie.poster_url}
+                alt="cover"
+                onClick={() => handleLikeMovie(movie.id)} // Handle click and add to liked
+              />
+              {likedMovies.includes(movie.id) && <div className="liked-label">Liked</div>}
+            </div>
           ))}
         </div>
       </div>

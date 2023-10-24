@@ -19,7 +19,7 @@ app.post('/recommendMovies', (req, res) => {
   console.log(req.body.adult);
 
   // Replace the Python script path with your actual Python script path
-  const pythonScriptPath = '/home/pc/Desktop/Begining/webdev/HackOn/Final/Backend/LLM/python_script3.py';
+  const pythonScriptPath = '/home/pc/Desktop/Begining/webdev/HackOn/Final/Backend/python_script3.py';
 
   // Construct the Python command to run the script with the user's input and languages
   const command = `python ${pythonScriptPath} ${movie1} ${movie2} ${languages.join(' ')}`; // Pass the languages as space-separated values
