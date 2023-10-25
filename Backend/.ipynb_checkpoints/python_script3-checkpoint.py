@@ -12,7 +12,7 @@ model = hub.load(model_url)
 def embed(texts):
     return model(texts)
 
-df = pd.read_csv("./updated_dataset.csv", engine="python")
+df = pd.read_csv("/home/pc/Desktop/Begining/webdev/HackOn/Final/Backend/updated_dataset.csv", engine="python")
 df = df[["id", "overview", "popularity", "original_title", "original_language", "poster_url"]]  # Include "original_language" and "poster_url" in the data
 df = df.dropna()
 df = df.reset_index()
